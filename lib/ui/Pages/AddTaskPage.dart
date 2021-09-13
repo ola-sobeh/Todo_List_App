@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_list/Provider/AddTaskProvider.dart';
 import 'package:todo_list/model/Task.dart';
-
 class AddTaskPage extends StatelessWidget {
    Task? task;
    AddTaskPage({task}){
@@ -11,19 +10,8 @@ class AddTaskPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AddTaskProvider>(builder: (context, provider, x) {
-      String taskTitle;
-      String taskDetails;
-      String buttonText;
-      if(task==null){
-        taskTitle="Task Title";
-         taskDetails="Task Details";
-         buttonText="Save";
-      }else{
-        taskTitle=task!.title;
-        taskDetails=task!.Details;
-        buttonText="Update";
-      }
+    return Consumer<TaskProvider>(builder: (context, provider, x) {
+      provider.checkTask(task: task);
       return Scaffold(
         backgroundColor: Colors.indigo,
         appBar: AppBar(
@@ -66,31 +54,34 @@ class AddTaskPage extends StatelessWidget {
                           TextFormField(
                             controller: provider.taskTitleController,
                             decoration: InputDecoration(
-                                labelText: taskTitle,
+                                labelText: "Task Title",
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15))),
                           ),
                           SizedBox(
                             height: 10,
                           ),
-                          TextFormField(
-                            controller: provider.taskDetailsController,
-                            decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 80, horizontal: 10.0),
-                                labelText: taskDetails,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15))),
+                          SizedBox(
+                            height: 200,
+                            child: TextFormField(
+                              controller: provider.taskDetailsController,
+                              decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 80, horizontal: 10.0),
+                                  labelText: "task Details",
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15))),
+                            ),
                           ),
                         ]),
                   ),
                 ),
               ),
             ),
-            FlatButton(
-              onPressed: () => {buttonText=="Save"?provider.createTask():provider.updateTask(task!)},
+            TextButton(
+              onPressed: () => {provider.buttonText=="Save"?provider.createTask(context):provider.updateTask(task!,context)},
               child: Text(
-                buttonText,
+                provider.buttonText,
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
             ),

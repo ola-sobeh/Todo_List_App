@@ -2,27 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:todo_list/model/Task.dart';
 import 'package:todo_list/util/DatabaseHelper.dart';
 
-class AddTaskProvider extends ChangeNotifier {
+class TaskProvider extends ChangeNotifier {
   TextEditingController taskTitleController = TextEditingController();
   TextEditingController taskDetailsController = TextEditingController();
-  TextEditingController taskDateController = TextEditingController();
   GlobalKey<FormState> addNewKey = GlobalKey<FormState>();
   List<Task> allTask = <Task>[];
   List<Task> allCompletedTask = <Task>[];
-  late int? totalTaskNum;
-  late int totalCompleteTask ;
+  int? totalTaskNum;
+  int? totalCompleteTask;
+  late String buttonText;
 
-  AddTaskProvider() {
+  TaskProvider() {
     getTasks();
   }
+  getTotalCompleteTask(){
+    if(totalCompleteTask == null){
+      int temp = 0;
+      return temp;
+    }
+    return totalCompleteTask;
+  }
+  getTotalTaskNum(){
+    if(totalTaskNum == null){
+      int temp = 0;
+      return temp;
+    }
+    return totalTaskNum;
+  }
 
-  createTask() {
+  createTask(context) async {
     if (addNewKey.currentState!.validate()) {
       Task task = Task(
-          title: taskTitleController.text,
-          //date: taskDateController.value as DateTime ,
-          Details: taskDetailsController.text);
+          title: taskTitleController.text, Details: taskDetailsController.text);
       insetTaskToDB(task);
+      await Future.delayed(Duration(seconds: 1));
+      Navigator.pop(context, true);
     }
   }
 
@@ -32,30 +46,32 @@ class AddTaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
- updateTask(Task task) async {
+  updateTask(Task task, context) async {
     if (addNewKey.currentState!.validate()) {
-          task.title= taskTitleController.text;
-          task.Details= taskDetailsController.text;
-          await DbHelper.dbHelper.updateTask(task);
-          getTasks();
-          notifyListeners();
+      task.title = taskTitleController.text;
+      task.Details = taskDetailsController.text;
+      await DbHelper.dbHelper.updateTask(task);
+      getTasks();
+      notifyListeners();
+      Navigator.pop(context, true);
     }
-
   }
-  updateTaskStauts(Task task)async{
+
+  updateTaskStauts(Task task) async {
     await DbHelper.dbHelper.updateTask(task);
     getTasks();
     notifyListeners();
   }
+
   getTasks() async {
     List<Map<String, Object?>> tasks = await DbHelper.dbHelper.getAllTask();
     allTask = tasks.map((e) {
       return Task.fromJson(e);
     }).toList();
     this.allCompletedTask =
-        this.allTask.where((element) => element.status==1).toList();
+        this.allTask.where((element) => element.status == 1).toList();
     totalTaskNum = allTask.length;
-    totalCompleteTask =allCompletedTask.length;
+    totalCompleteTask = allCompletedTask.length;
     notifyListeners();
   }
 
@@ -66,12 +82,24 @@ class AddTaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-   getProgressPercentage() {
-    double percentage =
-        (totalCompleteTask / totalTaskNum!) *100;
-    print(totalCompleteTask);
-    print(totalTaskNum);
-
+  getProgressPercentage() {
+    double percentage = 0.0;
+    if (totalCompleteTask == null) {
+      return percentage;
+    }
+    percentage = (totalCompleteTask! / totalTaskNum!) * 100;
     return percentage;
+  }
+
+  checkTask({task}) {
+    if (task == null) {
+      taskTitleController.text = "";
+      taskDetailsController.text = "";
+      buttonText = "Save";
+    } else {
+      taskTitleController.text = task!.title;
+      taskDetailsController.text = task!.Details;
+      buttonText = "Update";
+    }
   }
 }

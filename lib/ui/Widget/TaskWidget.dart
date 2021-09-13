@@ -11,7 +11,7 @@ class TaskWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AddTaskProvider>(
+    return Consumer<TaskProvider>(
         builder: (context, provider, x) {
           return GestureDetector(
             onTap:()=>{

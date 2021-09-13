@@ -5,21 +5,13 @@ import 'package:todo_list/util/DatabaseHelper.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:responsive_framework/utils/scroll_behavior.dart';
 import 'Provider/AddTaskProvider.dart';
-import 'Provider/HomeProvider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DbHelper.dbHelper.initDatabase();
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider<AddTaskProvider>(
-        create: (context) => AddTaskProvider(),
-      ),
-      ChangeNotifierProvider<HomeProvider>(
-        create: (context) => HomeProvider(),
-      ),
-    ],
-    child: MaterialApp(
+  runApp(ChangeNotifierProvider<TaskProvider>(
+    create: (context) => TaskProvider(),
+    child:MaterialApp(
       debugShowCheckedModeBanner: false,
       home: HomePage(),
       builder: (context, widget) => ResponsiveWrapper.builder(
